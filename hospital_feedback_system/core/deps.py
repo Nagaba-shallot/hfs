@@ -1,7 +1,8 @@
-from collections.abc import Callable, Generator
+from collections.abc import Callable
 
 import jwt
-from fastapi import Depends, Header, HTTPException, Request, status
+from fastapi import Depends, Header, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials   # <-- NEW
 from sqlalchemy.orm import Session
 
 from hospital_feedback_system.core.constants import Role, SESSION_HEADER_NAME
@@ -17,19 +18,17 @@ _bearer_error = HTTPException(
     headers={"WWW-Authenticate": "Bearer"},
 )
 
-
-def _extract_bearer_token(request: Request) -> str:
-    header = request.headers.get("Authorization")
-    if not header or not header.lower().startswith("bearer "):
-        raise _bearer_error
-    return header[len("bearer "):].strip()
+bearer_scheme = HTTPBearer(auto_error=False)
 
 
 def get_current_admin(
-    request: Request,
+    credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),   # <-- CHANGED
     db: Session = Depends(get_db),
 ) -> Admin:
-    token = _extract_bearer_token(request)
+    if credentials is None or credentials.scheme.lower() != "bearer":
+        raise _bearer_error
+
+    token = credentials.credentials
     try:
         payload = decode_access_token(token)
     except jwt.PyJWTError:
@@ -48,6 +47,8 @@ def get_current_admin(
         raise _bearer_error
     if not admin.is_active:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Inactive admin")
+    if payload.get("tv") != admin.token_version:
+        raise _bearer_error
     return admin
 
 

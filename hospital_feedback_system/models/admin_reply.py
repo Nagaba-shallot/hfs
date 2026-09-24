@@ -22,4 +22,4 @@ class Admin_reply(Base):
     Feedback_response = relationship(
         "Feedback_response", back_populates="admin_reply"
     )
-    Admin = relationship("Admin", back_populates="admin_reply")
+    admin = relationship("Admin")
