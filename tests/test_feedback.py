@@ -181,7 +181,7 @@ def test_admin_can_reply_to_feedback_and_reply_records_the_authenticated_admin(c
         headers=headers,
     )
     assert resp.status_code == 201, resp.text
-    me = client.get("/admins/me", headers=headers).json()
+    me = client.get("/admin/me", headers=headers).json()
     assert resp.json()["admin_id"] == me["admin_id"]
 
 

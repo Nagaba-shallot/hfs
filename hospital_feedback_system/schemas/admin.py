@@ -62,3 +62,18 @@ class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
     expires_in_minutes: int
+
+class AdminPasswordChange(BaseModel):
+    current_password: str
+    new_password: str
+
+    @field_validator("new_password")
+    @classmethod
+    def check_new_password(cls, v: str) -> str:
+        if len(v) < 12:
+            raise ValueError("Password must be at least 12 characters")
+        if not any(c.isdigit() for c in v):
+            raise ValueError("Password must contain at least one digit")
+        if not any(not c.isalnum() for c in v):
+            raise ValueError("Password must contain at least one symbol")
+        return v

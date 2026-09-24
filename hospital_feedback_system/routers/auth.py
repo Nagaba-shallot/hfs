@@ -31,7 +31,7 @@ def _require_super_admin_if_any_admin_exists(request: Request, db: Session) -> N
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Registration is closed. A super_admin must create your account "
-            "via POST /admins.",
+            "via POST /admin.",
             headers={"WWW-Authenticate": "Bearer"},
         )
     token = header[len("bearer "):].strip()
@@ -46,7 +46,7 @@ def _require_super_admin_if_any_admin_exists(request: Request, db: Session) -> N
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only a super_admin can register new admins once accounts exist. "
-            "Use POST /admins instead.",
+            "Use POST /admin instead.",
         )
 
 
@@ -96,7 +96,10 @@ def login(
     admin.last_login = func.now()
     db.commit()
 
-    token = create_access_token(subject=admin.admin_id, extra={"role": admin.role})
+    token = create_access_token(
+        subject=admin.admin_id,
+        extra={"role": admin.role, "tv": admin.token_version},
+    )
     return Token(access_token=token, expires_in_minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
 
 
