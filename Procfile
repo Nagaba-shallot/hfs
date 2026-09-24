@@ -1,1 +1,1 @@
-web: uvicorn hospital_feedback_system.main:app --host 0.0.0.0 --port $PORT
+web: alembic upgrade head && uvicorn hospital_feedback_system.main:app --host 0.0.0.0 --port $PORT

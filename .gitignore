@@ -1,2 +1,7 @@
 .env
 keys
+hfs/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.db
