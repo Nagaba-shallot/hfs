@@ -1,4 +1,3 @@
-from datetime import datetime
 from hospital_feedback_system.database import Base
 from sqlalchemy import Column, String, Integer, Boolean, ForeignKey, Text, DateTime
 from sqlalchemy.sql import func
@@ -19,7 +18,6 @@ class Admin_reply(Base):
     is_public = Column(Boolean, default=True, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-    Feedback_response = relationship(
-        "Feedback_response", back_populates="admin_reply"
-    )
+    feedback_response = relationship("Feedback_response", back_populates="admin_reply")
+    
     admin = relationship("Admin")
