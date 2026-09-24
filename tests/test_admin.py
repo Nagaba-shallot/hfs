@@ -54,7 +54,7 @@ def test_registration_is_closed_once_an_admin_exists(client):
 def test_super_admin_can_create_further_admins_via_admins_endpoint(client):
     headers = bootstrap_super_admin(client)
     resp = client.post(
-        "/admins",
+        "/admin",
         json={
             "first_name": "Second",
             "last_name": "Admin",
@@ -71,7 +71,7 @@ def test_super_admin_can_create_further_admins_via_admins_endpoint(client):
 def test_plain_admin_cannot_create_further_admins(client):
     headers = bootstrap_super_admin(client)
     client.post(
-        "/admins",
+        "/admin",
         json={
             "first_name": "Plain",
             "last_name": "Admin",
@@ -83,7 +83,7 @@ def test_plain_admin_cannot_create_further_admins(client):
     )
     plain_token = login(client, "plain@hospital.example.dev", "another-strong-pw")
     resp = client.post(
-        "/admins",
+        "/admin",
         json={
             "first_name": "X",
             "last_name": "Y",
@@ -97,12 +97,12 @@ def test_plain_admin_cannot_create_further_admins(client):
 
 
 def test_admin_endpoints_reject_missing_token(client):
-    resp = client.get("/admins")
+    resp = client.get("/admin")
     assert resp.status_code == 401
 
 
 def test_admin_endpoints_reject_garbage_token(client):
-    resp = client.get("/admins", headers=auth_headers("not-a-real-token"))
+    resp = client.get("/admin", headers=auth_headers("not-a-real-token"))
     assert resp.status_code == 401
 
 
@@ -130,8 +130,8 @@ def test_write_endpoints_reject_patients_and_public_callers(client):
 
 def test_admin_cannot_delete_their_own_account(client):
     headers = bootstrap_super_admin(client)
-    me = client.get("/admins/me", headers=headers).json()
-    resp = client.delete(f"/admins/{me['admin_id']}", headers=headers)
+    me = client.get("/admin/me", headers=headers).json()
+    resp = client.delete(f"/admin/{me['admin_id']}", headers=headers)
     assert resp.status_code == 400
 
 

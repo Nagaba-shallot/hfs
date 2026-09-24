@@ -5,13 +5,13 @@ from hospital_feedback_system.core.constants import ROLE_SUPER_ADMIN
 from hospital_feedback_system.core.deps import get_current_admin, require_role
 from hospital_feedback_system.database import get_db
 from hospital_feedback_system.models.admin import Admin
-from hospital_feedback_system.schemas.admin import AdminCreate, AdminRead, AdminSelfUpdate, AdminUpdate
+from hospital_feedback_system.schemas.admin import AdminCreate, AdminRead, AdminSelfUpdate, AdminUpdate, AdminPasswordChange
 from hospital_feedback_system.services import admin as admin_service
 from hospital_feedback_system.core.security import hash_password
 from hospital_feedback_system.repositories.admin import admin_repository
 from fastapi import HTTPException
 
-router = APIRouter(prefix="/admins", tags=["admins"])
+router = APIRouter(prefix="/admin", tags=["admin"])
 
 
 @router.get("", response_model=list[AdminRead], dependencies=[Depends(require_role(ROLE_SUPER_ADMIN))])
@@ -67,6 +67,22 @@ def read_admin(admin_id: int, db: Session = Depends(get_db)):
 def update_admin(admin_id: int, data: AdminUpdate, db: Session = Depends(get_db)):
     return admin_service.update_admin_as_super(db, admin_id, data)
 
+@router.patch("/me/password")
+def change_my_password(
+    payload: AdminPasswordChange,
+    admin: Admin = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    try:
+        admin_service.change_password(
+            db,
+            admin,
+            current_password=payload.current_password,
+            new_password=payload.new_password,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return {"ok": True, "message": "Password changed. Please log in again."}
 
 @router.delete(
     "/{admin_id}",
