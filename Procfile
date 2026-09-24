@@ -1,1 +1,1 @@
-web: uvicorn main:hospital_feedback_system --host 0.0.0.0 --port $PORT
+web: uvicorn hospital_feedback_system.main:app --host 0.0.0.0 --port $PORT
