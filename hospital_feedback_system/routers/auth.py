@@ -1,3 +1,4 @@
+import os
 import jwt
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordRequestForm
@@ -14,7 +15,7 @@ from hospital_feedback_system.core.security import (
     verify_password,
 )
 from hospital_feedback_system.config import settings
-from hospital_feedback_system.database import get_db
+from hospital_feedback_system.database import get_db, Base, engine
 from hospital_feedback_system.models.admin import Admin
 from hospital_feedback_system.repositories.admin import admin_repository
 from hospital_feedback_system.schemas.admin import AdminCreate, AdminRead, Token
@@ -106,3 +107,39 @@ def login(
 @router.get("/me", response_model=AdminRead)
 def read_me(admin: Admin = Depends(get_current_admin)):
     return admin
+
+@router.post("/bootstrap-reset", include_in_schema=False)
+def bootstrap_reset(request: Request, db: Session = Depends(get_db)):
+    expected = os.environ.get("BOOTSTRAP_SECRET")
+    if not expected or request.headers.get("X-Bootstrap-Secret") != expected:
+        raise HTTPException(status_code=404, detail="Not found")
+
+    from sqlalchemy import text
+    with engine.begin() as conn:
+        conn.execute(text("DROP SCHEMA public CASCADE"))
+        conn.execute(text("CREATE SCHEMA public"))
+
+    Base.metadata.create_all(bind=engine)
+
+    from hospital_feedback_system.core.security import hash_password
+    from hospital_feedback_system.core.constants import ROLE_SUPER_ADMIN
+
+    admin = Admin(
+        first_name="nagaba",
+        last_name="shallot",
+        email="nagabashalloti@gmail.com",
+        password=hash_password("NagabaShallot22"),
+        hospital_name="Memorial Hospital",
+        role=ROLE_SUPER_ADMIN,
+        is_active=True,
+        token_version=0,
+    )
+    db.add(admin)
+    db.commit()
+    db.refresh(admin)
+
+    return {
+        "ok": True,
+        "message": "Database rebuilt. Super admin seeded.",
+        "admin_email": admin.email,
+    }
