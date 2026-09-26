@@ -7,6 +7,7 @@ class PatientsRead(BaseModel):
     patient_id: int
     phone_number: str | None = None
     department_visited: str
+    department_id: int | None = None
     visit_date: date | None = None
     is_anonymous: bool
     created_at: datetime
@@ -15,4 +16,5 @@ class PatientSession(BaseModel):
     session_token: str
     patient_id: int
     department_visited: str
+    department_id: int | None = None
     expires_in_hours: int

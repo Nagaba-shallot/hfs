@@ -8,6 +8,7 @@ from hospital_feedback_system.schemas.feedback_category import (
     FeedbackCategoryCreate,
     FeedbackCategoryRead,
     FeedbackCategoryUpdate,
+    SurveyReplaceRequest,
 )
 from hospital_feedback_system.services import feedback_category as feedback_category_service
 
@@ -15,8 +16,8 @@ router = APIRouter(prefix="/feedback-categories", tags=["feedback-categories"])
 
 
 @router.get("", response_model=list[FeedbackCategoryRead])
-def list_categories(db: Session = Depends(get_db)):
-    return feedback_category_service.list_feedback_categories(db)
+def list_categories(department_id: int | None = None, db: Session = Depends(get_db)):
+    return feedback_category_service.list_feedback_categories(db, department_id)
 
 
 @router.post("", response_model=FeedbackCategoryRead, status_code=status.HTTP_201_CREATED)
@@ -27,6 +28,16 @@ def create_category(
 ):
     return feedback_category_service.create_feedback_category(db, data)
 
+@router.post("/admin/survey/replace", status_code=200)
+def replace_survey(
+    payload: SurveyReplaceRequest,
+    db: Session = Depends(get_db),
+    admin=Depends(get_current_admin),  
+):
+    result = feedback_category_service.replace_survey(
+        db, [c.model_dump() for c in payload.categories]
+    )
+    return result
 
 @router.patch("/{feedback_category_id}", response_model=FeedbackCategoryRead)
 def update_category(

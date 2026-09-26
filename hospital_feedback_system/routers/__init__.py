@@ -1,5 +1,6 @@
 from hospital_feedback_system.routers.admin import router as admin_router
 from hospital_feedback_system.routers.admin_reply import router as admin_reply_router
+from hospital_feedback_system.ai.router import router as ai_survey_router
 from hospital_feedback_system.routers.auth import router as auth_router
 from hospital_feedback_system.routers.department import router as department_router
 from hospital_feedback_system.routers.feedback_category import router as feedback_category_router
@@ -13,6 +14,7 @@ all_routers = [
     auth_router,
     admin_router,
     admin_reply_router,
+    ai_survey_router,
     department_router,
     feedback_category_router,
     feedback_response_router,
@@ -27,6 +29,7 @@ __all__ = [
     "auth_router",
     "admin_router",
     "admin_reply_router",
+    "ai_survey_router",
     "department_router",
     "feedback_category_router",
     "feedback_response_router",

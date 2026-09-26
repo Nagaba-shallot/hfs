@@ -8,6 +8,7 @@ from hospital_feedback_system.models.question import Questions
 from hospital_feedback_system.repositories.feedback_response import feedback_response_repository
 from hospital_feedback_system.schemas.feedback_response import FeedbackResponseCreate
 from hospital_feedback_system.services import survey_progress as survey_progress_service
+from hospital_feedback_system.models.department import Department
 
 
 def get_feedback_response(db: Session, feedback_response_id: int):
@@ -20,13 +21,34 @@ def get_feedback_response(db: Session, feedback_response_id: int):
 def list_feedback_responses(
     db: Session, patient_id: int | None = None, question_id: int | None = None
 ):
-    query = db.query(Feedback_response)
+    query = (
+        db.query(
+            Feedback_response,
+            Department.name.label("department_name"),
+        )
+        .join(Patients, Patients.patient_id == Feedback_response.patient_id)
+        .outerjoin(Department, Department.department_id == Patients.department_id)
+    )
     if patient_id is not None:
-        query = query.filter_by(patient_id=patient_id)
+        query = query.filter(Feedback_response.patient_id == patient_id)
     if question_id is not None:
-        query = query.filter_by(question_id=question_id)
-    return query.order_by(Feedback_response.created_at.desc()).all()
+        query = query.filter(Feedback_response.question_id == question_id)
 
+    rows = query.order_by(Feedback_response.created_at.desc()).all()
+
+    return [
+        {
+            "feedback_response_id": r.feedback_response_id,
+            "patient_id": r.patient_id,
+            "question_id": r.question_id,
+            "rating_value": r.rating_value,
+            "text_response": r.text_response,
+            "yes_no_value": r.yes_no_value,
+            "created_at": r.created_at,
+            "department_name": department_name,
+        }
+        for r, department_name in rows
+    ]
 
 def submit_answer(db: Session, patient: Patients, data: FeedbackResponseCreate):
     question = db.get(Questions, data.question_id)
@@ -37,7 +59,7 @@ def submit_answer(db: Session, patient: Patients, data: FeedbackResponseCreate):
         question.question_type, data.rating_value, data.text_response, data.yes_no_value
     )
     if error:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=error)
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=error)
 
     existing = (
         db.query(Feedback_response)

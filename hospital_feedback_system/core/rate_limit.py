@@ -56,3 +56,6 @@ login_limiter = RateLimiter("login", settings.LOGIN_RATE_LIMIT, settings.RATE_LI
 qr_scan_limiter = RateLimiter(
     "qr_scan", settings.QR_SCAN_RATE_LIMIT, settings.RATE_LIMIT_WINDOW_SECONDS
 )
+ai_generate_limiter = RateLimiter(
+    "ai_generate", settings.AI_GENERATE_RATE_LIMIT, settings.AI_GENERATE_RATE_LIMIT_WINDOW_SECONDS
+)

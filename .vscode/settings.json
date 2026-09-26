@@ -1,0 +1,7 @@
+{
+  "python.analysis.extraPaths": [
+    "./ai-ml",
+    "./backend"
+  ],
+  "python.defaultInterpreterPath": "./backend/hfs/bin/python"
+}

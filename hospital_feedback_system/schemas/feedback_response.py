@@ -31,3 +31,4 @@ class FeedbackResponseRead(BaseModel):
     text_response: str | None = None
     yes_no_value: bool | None = None
     created_at: datetime
+    department_name: str | None = None

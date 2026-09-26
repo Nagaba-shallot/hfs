@@ -148,8 +148,6 @@ def test_survey_progress_completes_after_all_required_questions_answered(client)
 
 
 def test_a_patient_cannot_read_another_patients_progress_or_answers(client):
-    """There is no ``/survey-progress/{id}`` or ``/feedback-responses?patient_id=``
-    reachable with a patient session — those require an admin token."""
     headers = bootstrap_super_admin(client)
     department = create_department(client, headers)
     token = get_qr_token(client, headers, department["department_id"])
