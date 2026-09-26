@@ -35,6 +35,11 @@ class Settings(BaseSettings):
     QR_SCAN_RATE_LIMIT: int = 30
     RATE_LIMIT_WINDOW_SECONDS: int = 60
 
+    GEMINI_API_KEY: str | None = None
+    GEMINI_MODEL: str = "gemini-3.5-flash-lite"
+    AI_GENERATE_RATE_LIMIT: int = 5
+    AI_GENERATE_RATE_LIMIT_WINDOW_SECONDS: int = 3600
+
     @field_validator("ALGORITHM")
     @classmethod
     def _asymmetric_algorithms_only(cls, value: str) -> str:

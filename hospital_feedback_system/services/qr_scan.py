@@ -19,6 +19,7 @@ def record_scan_and_start_session(db: Session, qr_code_token: str, request: Requ
     patient = Patients(
         session_token=hash_session_token(raw_token),
         department_visited=department.name,
+        department_id=department.department_id,
         is_anonymous=True,
     )
     db.add(patient)
@@ -39,6 +40,7 @@ def record_scan_and_start_session(db: Session, qr_code_token: str, request: Requ
         "session_token": raw_token,
         "patient_id": patient.patient_id,
         "department_visited": patient.department_visited,
+        "department_id": patient.department_id,
         "expires_in_hours": settings.PATIENT_SESSION_HOURS,
     }
 
