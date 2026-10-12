@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
-from hospital_feedback_system.core.deps import get_current_admin
+from hospital_feedback_system.core.constants import ROLE_SUPER_ADMIN
+from hospital_feedback_system.core.deps import get_current_admin, require_role
 from hospital_feedback_system.database import get_db
 from hospital_feedback_system.models.admin import Admin
 from hospital_feedback_system.schemas.feedback_category import (
@@ -9,6 +10,7 @@ from hospital_feedback_system.schemas.feedback_category import (
     FeedbackCategoryRead,
     FeedbackCategoryUpdate,
     SurveyReplaceRequest,
+    SurveyReplaceResult,
 )
 from hospital_feedback_system.services import feedback_category as feedback_category_service
 
@@ -28,16 +30,18 @@ def create_category(
 ):
     return feedback_category_service.create_feedback_category(db, data)
 
-@router.post("/admin/survey/replace", status_code=200)
-def replace_survey(
-    payload: SurveyReplaceRequest,
-    db: Session = Depends(get_db),
-    admin=Depends(get_current_admin),  
-):
-    result = feedback_category_service.replace_survey(
+
+@router.post(
+    "/admin/survey/replace",
+    response_model=SurveyReplaceResult,
+    status_code=200,
+    dependencies=[Depends(require_role(ROLE_SUPER_ADMIN))],
+)
+def replace_survey(payload: SurveyReplaceRequest, db: Session = Depends(get_db)):
+    return feedback_category_service.replace_survey(
         db, [c.model_dump() for c in payload.categories]
     )
-    return result
+
 
 @router.patch("/{feedback_category_id}", response_model=FeedbackCategoryRead)
 def update_category(
