@@ -15,7 +15,7 @@ class Feedback_category(Base):
 
     feedback_category_id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
-    department_id = Column(Integer, ForeignKey("department.department_id"), nullable=True)
+    department_id = Column(Integer, ForeignKey("department.department_id", ondelete="SET NULL"), nullable=True)
     display_order = Column(Integer, nullable=False)             
     icon = Column(String, default=None, nullable=True)
     description = Column(Text, nullable=True, default=None)

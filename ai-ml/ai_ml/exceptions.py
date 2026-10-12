@@ -20,3 +20,9 @@ class AIProviderError(AIGenerationError):
 
 class AIResponseFormatError(AIGenerationError):
     "The AI provider responded, but not in the shape we expected."
+
+
+class AIInputUnclearError(AIGenerationError):
+    def __init__(self, message: str):
+        super().__init__(message)
+        self.message = message

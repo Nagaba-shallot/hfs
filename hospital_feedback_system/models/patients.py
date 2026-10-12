@@ -12,7 +12,7 @@ class Patients(Base):
     session_token = Column(String, nullable=False, unique=True)
     phone_number = Column(String, nullable=True, default=None)
     department_visited = Column(String, nullable=False)
-    department_id = Column(Integer, ForeignKey("department.department_id"), nullable=True)
+    department_id = Column(Integer, ForeignKey("department.department_id", ondelete="SET NULL"), nullable=True)
     visit_date = Column(Date, nullable=True, default=None)       
     is_anonymous = Column(Boolean, nullable=False, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())

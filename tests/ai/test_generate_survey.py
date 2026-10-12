@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 from ai_ml.exceptions import (
+    AIInputUnclearError,
     AINotConfiguredError,
     AIProviderError,
     AIResponseFormatError,
@@ -92,6 +93,19 @@ def test_malformed_response_maps_to_502(client):
             "/ai/generate-survey", json={"focus": "Emergency Room"}, headers=headers
         )
     assert resp.status_code == 502
+
+
+def test_unclear_input_maps_to_422_with_the_models_own_message(client):
+    headers = bootstrap_super_admin(client)
+    with patch(
+        "hospital_feedback_system.ai.router.generate_survey_draft",
+        side_effect=AIInputUnclearError("That doesn't describe a real department."),
+    ):
+        resp = client.post(
+            "/ai/generate-survey", json={"focus": "hghghjg"}, headers=headers
+        )
+    assert resp.status_code == 422
+    assert resp.json()["detail"] == "That doesn't describe a real department."
 
 
 def test_generate_survey_is_rate_limited(client, monkeypatch):

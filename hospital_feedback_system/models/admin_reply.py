@@ -10,7 +10,7 @@ class Admin_reply(Base):
     admin_reply_id = Column(Integer, primary_key=True, index=True)
     feedback_response_id = Column(
         Integer,
-        ForeignKey("feedback_response.feedback_response_id"),
+        ForeignKey("feedback_response.feedback_response_id", ondelete="RESTRICT"),
         nullable=False,
     )
     admin_id = Column(Integer, ForeignKey("admin.admin_id"), nullable=False)

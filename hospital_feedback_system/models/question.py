@@ -11,7 +11,7 @@ class Questions(Base):
     question_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     feedback_category_id = Column(                                     
         Integer,
-        ForeignKey("feedback_category.feedback_category_id"),
+        ForeignKey("feedback_category.feedback_category_id", ondelete="CASCADE"),
         nullable=False,
     )
     question_text = Column(Text, nullable=False)

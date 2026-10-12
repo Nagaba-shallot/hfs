@@ -23,8 +23,10 @@ class Feedback_response(Base):
     feedback_response_id = Column(
         Integer, primary_key=True, index=True, autoincrement=True
     )
-    patient_id = Column(Integer, ForeignKey("patients.patient_id"), nullable=False)
-    question_id = Column(Integer, ForeignKey("questions.question_id"), nullable=False)
+    patient_id = Column(Integer, ForeignKey("patients.patient_id", ondelete="CASCADE"), nullable=False)
+    question_id = Column(
+        Integer, ForeignKey("questions.question_id", ondelete="RESTRICT"), nullable=False
+    )
     rating_value = Column(Integer, nullable=True)
     text_response = Column(Text, nullable=True)
     yes_no_value = Column(Boolean, nullable=True)

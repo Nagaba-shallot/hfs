@@ -1,4 +1,5 @@
 from ai_ml.exceptions import (
+    AIInputUnclearError,
     AINotConfiguredError,
     AIProviderError,
     AIResponseFormatError,
@@ -22,9 +23,7 @@ def generate_survey(
     admin: Admin = Depends(get_current_admin),
     _rate_limited: None = Depends(ai_generate_limiter),
 ):
-    """Returns a draft only — nothing is saved. The admin reviews it and
-    creates whatever they want via POST /feedback-categories and
-    POST /questions."""
+
     try:
         return generate_survey_draft(
             data.focus,
@@ -38,6 +37,8 @@ def generate_survey(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="AI survey generation isn't configured (GEMINI_API_KEY is unset).",
         )
+    except AIInputUnclearError as exc:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=exc.message)
     except AITimeoutError:
         raise HTTPException(
             status_code=status.HTTP_504_GATEWAY_TIMEOUT,
